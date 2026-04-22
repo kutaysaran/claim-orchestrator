@@ -100,7 +100,10 @@ export function ClaimDashboard() {
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1.8fr)_320px] lg:items-start xl:grid-cols-[minmax(0,2fr)_360px]">
           <section className="space-y-3 md:space-y-4">
             <div className="flex flex-col gap-2">
-              <Badge variant="default" className="w-fit">
+              <Badge
+                variant="default"
+                className="w-fit border border-sky-200 bg-white/85 text-sky-700 shadow-sm backdrop-blur-sm"
+              >
                 Process Timeline
               </Badge>
               <h2 className="text-xl font-semibold tracking-tight text-slate-950 md:text-2xl">
