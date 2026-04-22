@@ -17,7 +17,6 @@ export function createConfiguredProcessNode<TTitle extends ProcessNode["title"]>
     }
 
     const typedNode = node as Extract<ProcessNode, { title: TTitle }>;
-
     return (
       <NodeShell node={typedNode}>
         <NodeFieldList
