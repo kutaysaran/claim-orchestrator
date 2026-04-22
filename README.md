@@ -22,7 +22,7 @@ Then open [http://localhost:3000](http://localhost:3000).
 
 ## Deployment
 
-- Live URL: [claim-orchestrator-eight.vercel.app](https://claim-orchestrator-eight.vercel.app/)
+- Live URL: [https://claim-orchestrator-kod7.vercel.app/](https://claim-orchestrator-kod7.vercel.app/)
 
 ## Design decisions
 
