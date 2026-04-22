@@ -35,6 +35,7 @@ type ClaimStore = {
   insertedNodes: InsertedNode[];
   explanations: Record<string, ExplanationEntry>;
   documentAnalyzer: AnalyzerState;
+  autoEditingNodeId: string | null;
   initializedForFileNo: string | null;
   nextPlacementOrder: number;
   initializeNodes: (fileNo: string, processDetails: ProcessDetail[]) => void;
@@ -44,6 +45,7 @@ type ClaimStore = {
     updater: Partial<InformationNoteNode> | Partial<AdditionalAttachmentNode>,
   ) => void;
   removeInsertedNode: (nodeId: string) => void;
+  clearAutoEditingNode: (nodeId: string) => void;
   selectAnalyzerFile: (fileName: string | null, targetDocument: string | null) => void;
   analyzeDocument: (input: AnalyzerInput, targetDocument: string | null) => Promise<void>;
   explainNode: (node: ClaimNode) => Promise<void>;
@@ -59,6 +61,7 @@ export const useClaimStore = create<ClaimStore>()(
       insertedNodes: [],
       explanations: {},
       documentAnalyzer: defaultAnalyzerState,
+      autoEditingNodeId: null,
       initializedForFileNo: null,
       nextPlacementOrder: 0,
       initializeNodes: (fileNo, processDetails) =>
@@ -77,6 +80,7 @@ export const useClaimStore = create<ClaimStore>()(
             insertedNodes: [],
             explanations: {},
             documentAnalyzer: defaultAnalyzerState,
+            autoEditingNodeId: null,
             initializedForFileNo: fileNo,
             nextPlacementOrder: 0,
           };
@@ -89,11 +93,11 @@ export const useClaimStore = create<ClaimStore>()(
             return state;
           }
 
+          const newNode = createInsertedNode(type, afterId, state.nextPlacementOrder);
+
           return {
-            insertedNodes: [
-              ...state.insertedNodes,
-              createInsertedNode(type, afterId, state.nextPlacementOrder),
-            ],
+            insertedNodes: [...state.insertedNodes, newNode],
+            autoEditingNodeId: newNode.id,
             nextPlacementOrder: state.nextPlacementOrder + 1,
           };
         }),
@@ -110,6 +114,8 @@ export const useClaimStore = create<ClaimStore>()(
 
             return { ...node, ...(updater as Partial<AdditionalAttachmentNode>) };
           }),
+          autoEditingNodeId:
+            state.autoEditingNodeId === nodeId ? null : state.autoEditingNodeId,
         })),
       removeInsertedNode: (nodeId) =>
         set((state) => ({
@@ -117,10 +123,17 @@ export const useClaimStore = create<ClaimStore>()(
           explanations: Object.fromEntries(
             Object.entries(state.explanations).filter(([id]) => id !== nodeId),
           ),
+          autoEditingNodeId:
+            state.autoEditingNodeId === nodeId ? null : state.autoEditingNodeId,
           documentAnalyzer:
             state.documentAnalyzer.linkedAttachmentId === nodeId
               ? { ...state.documentAnalyzer, linkedAttachmentId: null }
               : state.documentAnalyzer,
+        })),
+      clearAutoEditingNode: (nodeId) =>
+        set((state) => ({
+          autoEditingNodeId:
+            state.autoEditingNodeId === nodeId ? null : state.autoEditingNodeId,
         })),
       selectAnalyzerFile: (fileName, targetDocument) =>
         set((state) => ({

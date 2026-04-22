@@ -47,9 +47,9 @@ describe("node shell interactions", () => {
     expect(screen.getByRole("button", { name: "Rephrase with AI" })).toBeInTheDocument();
   });
 
-  it("updates inserted note fields through user input", () => {
+  it("opens newly inserted notes in edit mode and lets the user close it", () => {
     const insertedNode = createInsertedNode("information-note", "step-anchor", 0);
-    useClaimStore.setState({ insertedNodes: [insertedNode] });
+    useClaimStore.setState({ insertedNodes: [insertedNode], autoEditingNodeId: insertedNode.id });
 
     render(<NoteNode node={insertedNode} />);
 
@@ -68,5 +68,9 @@ describe("node shell interactions", () => {
       expect(updatedNode.noteTitle).toBe("Callback requested");
       expect(updatedNode.content).toBe("Please update the customer after document review.");
     }
+
+    fireEvent.click(screen.getByRole("button", { name: "Done" }));
+    expect(screen.queryByLabelText("Note title")).not.toBeInTheDocument();
+    expect(useClaimStore.getState().autoEditingNodeId).toBeNull();
   });
 });
