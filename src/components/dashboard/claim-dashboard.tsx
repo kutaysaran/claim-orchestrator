@@ -10,9 +10,42 @@ import { Timeline } from "@/components/timeline/timeline";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import type { ClaimInsights } from "@/lib/claim/actionability";
 import { getClaimInsights } from "@/lib/claim/actionability";
 import { fetchClaimData } from "@/lib/api/claims";
 import { useClaimStore } from "@/store/claim-store";
+
+function getActionCenterConfig(insights: ClaimInsights) {
+  if (insights.nextActionLabel === "Ready to submit") {
+    return {
+      badgeVariant: "success" as const,
+      badgeLabel: "Action cleared",
+      title: "Ready for review",
+    };
+  }
+
+  if (insights.nextActionLabel === "Validation required") {
+    return {
+      badgeVariant: "info" as const,
+      badgeLabel: "Validation in progress",
+      title: "Document check",
+    };
+  }
+
+  if (insights.nextActionLabel === "On track") {
+    return {
+      badgeVariant: "info" as const,
+      badgeLabel: "Claim moving",
+      title: "Latest update",
+    };
+  }
+
+  return {
+    badgeVariant: "warning" as const,
+    badgeLabel: "Action center",
+    title: "Current blocker",
+  };
+}
 
 export function ClaimDashboard() {
   const initializeNodes = useClaimStore((state) => state.initializeNodes);
@@ -27,6 +60,7 @@ export function ClaimDashboard() {
     () => (data ? getClaimInsights(data, insertedNodes, documentAnalyzer) : null),
     [data, documentAnalyzer, insertedNodes],
   );
+  const actionCenter = insights ? getActionCenterConfig(insights) : null;
 
   useEffect(() => {
     if (data) {
@@ -124,10 +158,12 @@ export function ClaimDashboard() {
             {insights ? (
               <Card className="border-slate-200">
                 <CardHeader className="gap-2">
-                  <Badge variant="warning">Action center</Badge>
+                  <Badge variant={actionCenter?.badgeVariant ?? "warning"}>
+                    {actionCenter?.badgeLabel ?? "Action center"}
+                  </Badge>
                   <CardTitle className="flex items-center gap-2">
                     <FileWarning className="size-4 text-amber-600" />
-                    Current blocker
+                    {actionCenter?.title ?? "Current blocker"}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3 text-xs text-slate-700 md:text-sm">

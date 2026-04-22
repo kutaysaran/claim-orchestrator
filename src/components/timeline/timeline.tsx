@@ -35,16 +35,16 @@ export function Timeline() {
         const isLast = index === nodes.length - 1;
 
         return (
-          <div key={node.id} className="relative pl-8" role="listitem">
+          <div key={node.id} className="relative pl-6 md:pl-8" role="listitem">
             {!isLast ? (
               <div
                 aria-hidden="true"
-                className="absolute bottom-0 left-[11px] top-6 w-px bg-slate-200"
+                className="absolute bottom-0 left-[7px] top-5 w-px bg-slate-200 md:left-[11px] md:top-6"
               />
             ) : null}
             <div
               aria-hidden="true"
-              className="absolute left-0 top-6 size-6 rounded-full border-4 border-white bg-sky-600 shadow-sm"
+              className="absolute left-0 top-5 size-4 rounded-full border-2 border-white bg-sky-600 shadow-sm md:top-6 md:size-6 md:border-4"
             />
             <NodeComponent node={node} />
           </div>

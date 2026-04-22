@@ -30,6 +30,27 @@ type ExplanationEntry = {
   requestCount: number;
 };
 
+function resetPersistedAttachmentValidation(insertedNodes: InsertedNode[]) {
+  return insertedNodes.map((node) => {
+    if (node.nodeType !== "additional-attachment") {
+      return node;
+    }
+
+    if (
+      node.validation !== "Validated by simulated AI" &&
+      node.status !== "Ready for review"
+    ) {
+      return node;
+    }
+
+    return {
+      ...node,
+      status: "Awaiting revalidation",
+      validation: "Needs revalidation after refresh",
+    };
+  });
+}
+
 type ClaimStore = {
   baseNodes: ProcessNode[];
   insertedNodes: InsertedNode[];
@@ -71,7 +92,11 @@ export const useClaimStore = create<ClaimStore>()(
           if (state.initializedForFileNo === fileNo) {
             return {
               baseNodes,
-              insertedNodes: filterInsertedNodesForAnchors(baseNodes, state.insertedNodes),
+              insertedNodes: resetPersistedAttachmentValidation(
+                filterInsertedNodesForAnchors(baseNodes, state.insertedNodes),
+              ),
+              documentAnalyzer: defaultAnalyzerState,
+              autoEditingNodeId: null,
             };
           }
 
@@ -239,7 +264,6 @@ export const useClaimStore = create<ClaimStore>()(
       partialize: (state) => ({
         insertedNodes: state.insertedNodes,
         explanations: state.explanations,
-        documentAnalyzer: state.documentAnalyzer,
         initializedForFileNo: state.initializedForFileNo,
         nextPlacementOrder: state.nextPlacementOrder,
       }),

@@ -84,4 +84,48 @@ describe("claim store node actions", () => {
       "Claim Notification",
     ]);
   });
+
+  it("resets transient analyzer state and revalidation-dependent attachment status on re-initialize", () => {
+    const state = useClaimStore.getState();
+    state.initializeNodes("file-4", mockClaimData.processDetails.slice(0, 2));
+
+    const firstStepId = useClaimStore.getState().baseNodes[0]?.id;
+    if (!firstStepId) {
+      throw new Error("Expected a base node to exist.");
+    }
+
+    useClaimStore.getState().insertNodeAfter(firstStepId, "additional-attachment");
+
+    const attachmentNode = useClaimStore.getState().insertedNodes[0];
+    if (!attachmentNode || attachmentNode.nodeType !== "additional-attachment") {
+      throw new Error("Expected an attachment node to exist.");
+    }
+
+    useClaimStore.setState({
+      insertedNodes: [
+        {
+          ...attachmentNode,
+          status: "Ready for review",
+          validation: "Validated by simulated AI",
+        },
+      ],
+      documentAnalyzer: {
+        ...defaultAnalyzerState,
+        status: "success",
+        selectedFileName: "occupational-certificate.pdf",
+        targetDocument: "Occupational Certificate",
+        message: "Validated",
+      },
+    });
+
+    useClaimStore.getState().initializeNodes("file-4", mockClaimData.processDetails.slice(0, 2));
+
+    const refreshedAttachment = useClaimStore.getState().insertedNodes[0];
+    expect(useClaimStore.getState().documentAnalyzer).toEqual(defaultAnalyzerState);
+    expect(refreshedAttachment?.nodeType).toBe("additional-attachment");
+    if (refreshedAttachment?.nodeType === "additional-attachment") {
+      expect(refreshedAttachment.status).toBe("Awaiting revalidation");
+      expect(refreshedAttachment.validation).toBe("Needs revalidation after refresh");
+    }
+  });
 });
