@@ -56,7 +56,10 @@ export function ClaimSummary({
       <CardHeader className="gap-2 md:gap-3">
         <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
           <div>
-            <Badge variant="info" className="mb-2 md:mb-3">
+            <Badge
+              variant="info"
+              className="animated-gradient-badge mb-2 border border-sky-200/80 text-sky-900 shadow-sm md:mb-3"
+            >
               AI-Powered Claim Orchestrator
             </Badge>
             <CardTitle className="text-lg md:text-2xl">Claim Overview</CardTitle>
